@@ -1,83 +1,39 @@
-import React, { useState } from 'react';
-import { Box, Button, Input, TextField } from '@mui/material';
-import axios from 'axios';
-
+import React, { useState } from "react";
+import Sidebar from "../Components/Sidebar";
+import HomeD from '../Components/HomeD'
+import Analyze from '../Components/Analyze'
+import Create from '../Components/Create'
+import  Feedback from "../Components/Feedback";
 function Dashboard() {
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [jobDescription, setJobDescription] = useState('');
-    const [responseMessage, setResponseMessage] = useState('');
+  const [activeMenu, setActiveMenu] = useState("Home"); // Default menu item
 
-    // Handle file change
-    const handleFileChange = (event) => {
-        setSelectedFile(event.target.files[0]);
-    };
+  // Function to handle menu item click
+  const handleMenuItemClick = (menu) => {
+    setActiveMenu(menu);
+  };
 
-    // Handle job description change
-    const handleJobDescriptionChange = (event) => {
-        setJobDescription(event.target.value);
-    };
+  // Render content based on the active menu
+  const renderContent = () => {
+    switch (activeMenu) {
+      case "Home":
+        return <HomeD />;
+      case "Analyze Resume":
+        return <Analyze />;
+      case "Create Resume":
+        return <Create />;
+      case "Feedback":
+        return <Feedback />;
+      default:
+        return <h1>Select a Menu Item.</h1>;
+    }
+  };
 
-    // Submit form data
-    const handleSubmit = async () => {
-        if (!selectedFile || !jobDescription) {
-            setResponseMessage('Please select a file and provide a job description before submitting.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('resume_file', selectedFile);  // Append file with 'resume_file' key
-        formData.append('job_description', jobDescription);  // Append job description
-
-        try {
-            const response = await axios.post(
-                'https://resume-analysis-service-166527752013.us-central1.run.app/resume-parser',  // Replace with your actual backend URL
-                formData // Send FormData, which automatically sets 'Content-Type'
-            );
-            setResponseMessage(`File uploaded successfully! Response: ${JSON.stringify(response.data)}`);
-        } catch (error) {
-            console.error(error);
-            setResponseMessage('Failed to upload file. Please try again.');
-        }
-    };
-
-    return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100vh',
-                gap: 2,
-            }}
-        >
-            {/* File input */}
-            <Input
-                type="file"
-                onChange={handleFileChange}
-                inputProps={{ accept: '.pdf,.doc,.docx' }}
-            />
-
-            {/* Job description input */}
-            <TextField
-                label="Job Description"
-                variant="outlined"
-                value={jobDescription}
-                onChange={handleJobDescriptionChange}
-                fullWidth
-                multiline
-                rows={4}
-            />
-
-            {/* Submit button */}
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-                Submit
-            </Button>
-
-            {/* Response message */}
-            {responseMessage && <Box mt={2}>{responseMessage}</Box>}
-        </Box>
-    );
+  return (
+    <div style={{ display: "flex" }}>
+      <Sidebar onMenuItemClick={handleMenuItemClick} />
+      <div style={{ flex: 1, padding: "20px" }}>{renderContent()}</div>
+    </div>
+  );
 }
 
 export default Dashboard;

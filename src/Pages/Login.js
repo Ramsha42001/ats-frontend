@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -21,6 +22,7 @@ const App = () => {
 
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState(initialFormData);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Handle input change for both forms
   const handleChange = (e) => {
@@ -32,20 +34,53 @@ const App = () => {
   };
 
   // Handle form submission for login
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login data:", formData);
-    // Reset form data to initial state after submission
-    setFormData(initialFormData);
-  };
+ // Handle form submission for login
+const handleLoginSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await axios.post(
+      "https://resume-analysis-service-166527752013.us-central1.run.app/login",
+      {
+        email: formData.email,
+        password: formData.password,
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    console.log(response.data);
+    // Perform any additional actions (e.g., redirect, save token)
+  } catch (error) {
+    console.error("Login error:", error.response?.data || error.message);
+    setErrorMessage(error.response?.data?.message || "Login failed.");
+  }
+};
 
-  // Handle form submission for signup
-  const handleSignupSubmit = (e) => {
-    e.preventDefault();
-    console.log("Signup data:", formData);
-    // Reset form data to initial state after submission
-    setFormData(initialFormData);
-  };
+// Handle form submission for signup
+const handleSignupSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await axios.post(
+      "https://resume-analysis-service-166527752013.us-central1.run.app/signup",
+      {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    console.log("Signup successful:", response.data);
+    setFormData(initialFormData); // Reset form data
+    setErrorMessage(""); // Clear any previous error
+  } catch (error) {
+    console.error("Signup error:", error.response?.data || error.message);
+    setErrorMessage(error.response?.data?.message || "Signup failed.");
+  }
+};
+
 
   return (
     <Box
@@ -104,6 +139,12 @@ const App = () => {
           <Typography variant="h4" sx={{ fontWeight: "bold", mb: 3 }}>
             {isLogin ? "Log In" : "Create an Account"}
           </Typography>
+
+          {errorMessage && (
+            <Typography variant="body2" sx={{ color: "error.main", mb: 2 }}>
+              {errorMessage}
+            </Typography>
+          )}
 
           {/* Login Form */}
           {isLogin ? (
