@@ -2,8 +2,8 @@ import React from 'react'
 import {Box, Typography} from '@mui/material'
 import Card from './Card'
 import card1 from '../images/card1.jpg'
-import card2 from '../images/card2.jpg'
-import card3 from '../images/card3.jpg'
+import card2 from '../images/r1.jpeg'
+import card3 from '../images/r2.jpeg'
 
 const data=[
     {
@@ -15,14 +15,14 @@ const data=[
     {
         id:2,
         src:card2,
-        description:'Build ATS friendly,keyword rich resumes',
-        text:'Everything you need to make your next career move'
+        description:'AI-Powered Resume Analysis',
+        text:'Evaluates resumes based on key factors like skill alignment, keyword matching, and job description compatibility.'
     },
     {
         id:3,
         src:card3,
-        description:'Build ATS friendly,keyword rich resumes',
-        text:'Everything you need to make your next career move'
+        description:'User-Friendly Interface',
+        text:'Designed with simplicity and ease of use in mind, even for non-technical users.'
     },
 
 ]

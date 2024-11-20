@@ -5,48 +5,65 @@ import {
   Paper,
   Button,
   TextField,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
   CircularProgress,
 } from "@mui/material";
+import axios from "axios"; // Ensure axios is imported
 
 function ResumeAnalysisPage() {
-  const [score, setScore] = useState(85); // Mock score
-  const [insights, setInsights] = useState({
-    skills: 80,
-    experience: 75,
-    formatting: 90,
-  });
+  const [score, setScore] = useState(null); // Initially, no score
+  const [Feedback,setFeedback] = useState(null);
+  const [Key,setKey]=useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [jobDescription, setJobDescription] = useState("");
-  const [fileOption, setFileOption] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
+  const [insights, setInsights] = useState({});
   const [loading, setLoading] = useState(false); // State to manage loading indicator
 
-  const rows = [
-    { id: 1, customer: "John Doe", transactionId: "#TR12345", date: "20 Nov 2024", insights: "Strong formatting" },
-    { id: 2, customer: "Jane Smith", transactionId: "#TR98765", date: "18 Nov 2024", insights: "Improved keywords" },
-  ];
+  // Handle file change
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
 
-  const columns = [
-    { field: "customer", headerName: "Customer", width: 150 },
-    { field: "transactionId", headerName: "Transaction ID", width: 150 },
-    { field: "date", headerName: "Date", width: 120 },
-    { field: "insights", headerName: "Insights", width: 250 },
-  ];
+  // Submit form data
+  const handleSubmit = async () => {
+    if (!selectedFile || !jobDescription) {
+      setResponseMessage(
+        "Please select a file and provide a job description before submitting."
+      );
+      return;
+    }
 
-  const handleGenerateAnalysis = () => {
-    setLoading(true); // Start loading
-    // Simulate analysis by setting insights after a delay
-    setTimeout(() => {
-      setScore(92); // Mock updated score
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("resume_file", selectedFile); // Append file with 'resume_file' key
+    formData.append("job_description", jobDescription); // Append job description
+
+    try {
+      const response = await axios.post(
+        "https://resume-analysis-service-166527752013.us-central1.run.app/resume", // Replace with your actual backend URL
+        formData
+      );
+
+      
+      const data = response.data;
+      console.log(response)
+      setScore(data[0]["Overall Score"] || "N/A"); 
+      setFeedback(data[0]["Feedback"] || "N/A");
+      setKey(data[0])
       setInsights({
-        skills: 85,
-        experience: 78,
-        formatting: 95,
+        skills: data.Insights?.skills || "N/A",
+        experience: data.Insights?.experience || "N/A",
+        formatting: data.Insights?.formatting || "N/A",
       });
+      setResponseMessage("Analysis generated successfully!");
+    } catch (error) {
+      console.error(error);
+      setResponseMessage(
+        "Failed to analyze the resume. Please try again later."
+      );
+    } finally {
       setLoading(false); // Stop loading
-    }, 2000); // Simulate a 2-second delay
+    }
   };
 
   return (
@@ -75,9 +92,8 @@ function ResumeAnalysisPage() {
         Resume Analysis Dashboard
       </Typography>
 
-      {/* Job Description Input and File Dropdown */}
+      {/* Job Description Input and File Input */}
       <Box sx={{ mb: 4 }}>
-        {/* Job Description Input */}
         <TextField
           fullWidth
           label="Enter Job Description"
@@ -89,19 +105,7 @@ function ResumeAnalysisPage() {
           onChange={(e) => setJobDescription(e.target.value)}
         />
 
-        {/* File Dropdown */}
-        <FormControl fullWidth sx={{ mb: 3 }}>
-          <InputLabel>Select Resume File</InputLabel>
-          <Select
-            value={fileOption}
-            onChange={(e) => setFileOption(e.target.value)}
-            label="Select Resume File"
-          >
-            <MenuItem value="resume1.pdf">Resume 1 (PDF)</MenuItem>
-            <MenuItem value="resume2.docx">Resume 2 (DOCX)</MenuItem>
-            <MenuItem value="resume3.pdf">Resume 3 (PDF)</MenuItem>
-          </Select>
-        </FormControl>
+        <input type="file" onChange={handleFileChange} style={{ marginBottom: "16px" }} />
       </Box>
 
       {/* Generate Analysis Button */}
@@ -117,151 +121,85 @@ function ResumeAnalysisPage() {
             paddingY: 1.5,
             "&:hover": { opacity: 0.9 },
           }}
-          onClick={handleGenerateAnalysis} // Trigger analysis on button click
+          onClick={handleSubmit} // Trigger analysis on button click
           disabled={loading} // Disable button while loading
         >
-          {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Generate Analysis"}
+          {loading ? (
+            <CircularProgress size={24} sx={{ color: "white" }} />
+          ) : (
+            "Generate Analysis"
+          )}
         </Button>
       </Box>
 
-      {/* Summary Cards */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          mb: 4,
-        }}
-      >
-        <Paper
+      {/* Response Message */}
+      {responseMessage && (
+        <Typography
+          variant="body1"
           sx={{
-            flex: "1",
-            padding: 3,
             textAlign: "center",
-            borderRadius: 4,
-            backgroundColor: "#f3f6fd",
+            color: responseMessage.includes("Failed") ? "red" : "green",
+            mb: 4,
           }}
         >
-          <Typography variant="h6" sx={{ color: "#7E57C2" }}>
-            Resume Score
-          </Typography>
-          <Typography variant="h3" sx={{ fontWeight: "bold", color: "#4CAF50" }}>
-            {score}%
-          </Typography>
-        </Paper>
-        <Paper
-          sx={{
-            flex: "1",
-            padding: 3,
-            textAlign: "center",
-            borderRadius: 4,
-            backgroundColor: "#f3f6fd",
-          }}
-        >
-          <Typography variant="h6" sx={{ color: "#FF5722" }}>
-            Keywords Matched
-          </Typography>
-          <Typography variant="h3" sx={{ fontWeight: "bold", color: "#FF9800" }}>
-            {insights.skills}%
-          </Typography>
-        </Paper>
-        <Paper
-          sx={{
-            flex: "1",
-            padding: 3,
-            textAlign: "center",
-            borderRadius: 4,
-            backgroundColor: "#f3f6fd",
-          }}
-        >
-          <Typography variant="h6" sx={{ color: "#2196F3" }}>
-            Formatting Score
-          </Typography>
-          <Typography variant="h3" sx={{ fontWeight: "bold", color: "#3F51B5" }}>
-            {insights.formatting}%
-          </Typography>
-        </Paper>
-      </Box>
+          {responseMessage}
+        </Typography>
+      )}
 
-      {/* Circular Score Section */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-around",
-          alignItems: "center",
-          flexWrap: "wrap",
-          mb: 4,
-        }}
-      >
-        {Object.entries(insights).map(([key, value]) => (
+      {/* Summary Cards */}
+      {score && (
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            mb: 4,
+          }}
+        >
           <Paper
-            key={key}
             sx={{
+              flex: "1",
               padding: 3,
               textAlign: "center",
               borderRadius: 4,
-              width: "200px",
-              boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)",
+              backgroundColor: "#f3f6fd",
             }}
           >
-            <Typography
-              variant="h6"
-              sx={{
-                textTransform: "capitalize",
-                mb: 2,
-                color: "#666",
-                fontWeight: "medium",
-              }}
-            >
-              {key} Score
+            <Typography variant="h6" sx={{ color: "#7E57C2" }}>
+              Resume Score
             </Typography>
-            <Box
+            <Typography
+              variant="h3"
+              sx={{ fontWeight: "bold", color: "#4CAF50" }}
+            >
+              {score}%
+            </Typography>
+          </Paper>
+          {Object.entries(insights).map(([key, value]) => (
+            <Paper
+              key={key}
               sx={{
-                position: "relative",
-                display: "inline-flex",
-                justifyContent: "center",
-                alignItems: "center",
+                flex: "1",
+                padding: 3,
+                textAlign: "center",
+                borderRadius: 4,
+                backgroundColor: "#f3f6fd",
               }}
             >
-              <CircularProgress
-                variant="determinate"
-                value={value}
-                size={80}
-                sx={{ color: "#4CAF50" }}
-              />
+              <Typography variant="h6" sx={{ color: "#FF5722" }}>
+                {key.charAt(0).toUpperCase() + key.slice(1)} Score
+              </Typography>
               <Typography
-                variant="h6"
-                sx={{
-                  position: "absolute",
-                  fontWeight: "bold",
-                  color: "#4CAF50",
-                }}
+                variant="h3"
+                sx={{ fontWeight: "bold", color: "#FF9800" }}
               >
                 {value}%
               </Typography>
-            </Box>
-          </Paper>
-        ))}
-      </Box>
-
-      {/* Footer with Action Button */}
-      <Box sx={{ textAlign: "center", mt: 4 }}>
-        <Button
-          variant="contained"
-          sx={{
-            background: "linear-gradient(90deg, #0569E3, #FF6229)",
-            color: "white",
-            fontWeight: "bold",
-            borderRadius: 20,
-            paddingX: 4,
-            paddingY: 1.5,
-            "&:hover": { opacity: 0.9 },
-          }}
-        >
-          Download Full Analysis Report
-        </Button>
-      </Box>
+            </Paper>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }

@@ -4,8 +4,9 @@ import HomeD from '../Components/HomeD'
 import Analyze from '../Components/Analyze'
 import Create from '../Components/Create'
 import  Feedback from "../Components/Feedback";
+
 function Dashboard() {
-  const [activeMenu, setActiveMenu] = useState("Home"); // Default menu item
+const [activeMenu, setActiveMenu] = useState("Home"); // Default menu item
 
   // Function to handle menu item click
   const handleMenuItemClick = (menu) => {

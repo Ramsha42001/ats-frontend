@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
+import login from '../images/login3.jpeg';
 import {
   Box,
   Typography,
   TextField,
   Button,
   Stack,
-  Checkbox,
   Link,
-  FormControlLabel,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const App = () => {
   const initialFormData = {
@@ -23,6 +23,7 @@ const App = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState(initialFormData);
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate(); // Initialize the navigate function
 
   // Handle input change for both forms
   const handleChange = (e) => {
@@ -34,53 +35,51 @@ const App = () => {
   };
 
   // Handle form submission for login
- // Handle form submission for login
-const handleLoginSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post(
-      "https://resume-analysis-service-166527752013.us-central1.run.app/login",
-      {
-        email: formData.email,
-        password: formData.password,
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-    console.log(response.data);
-    // Perform any additional actions (e.g., redirect, save token)
-  } catch (error) {
-    console.error("Login error:", error.response?.data || error.message);
-    setErrorMessage(error.response?.data?.message || "Login failed.");
-  }
-};
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "https://resume-analysis-service-166527752013.us-central1.run.app/login",
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      console.log(response.data);
+      // Redirect to dashboard upon successful login
+      navigate("/dashboard", { state: { email: formData.email }});
+    } catch (error) {
+      console.error("Login error:", error.response?.data || error.message);
+      setErrorMessage(error.response?.data?.message || "Login failed.");
+    }
+  };
 
-// Handle form submission for signup
-const handleSignupSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post(
-      "https://resume-analysis-service-166527752013.us-central1.run.app/signup",
-      {
-        email: formData.email,
-        password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-    console.log("Signup successful:", response.data);
-    setFormData(initialFormData); // Reset form data
-    setErrorMessage(""); // Clear any previous error
-  } catch (error) {
-    console.error("Signup error:", error.response?.data || error.message);
-    setErrorMessage(error.response?.data?.message || "Signup failed.");
-  }
-};
-
+  const handleSignupSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "https://resume-analysis-service-166527752013.us-central1.run.app/signup",
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      console.log("Signup successful:", response.data);
+      setFormData(initialFormData); // Reset form data
+      setErrorMessage(""); // Clear any previous error
+    } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
+      setErrorMessage(error.response?.data?.message || "Signup failed.");
+    }
+  };
 
   return (
     <Box
@@ -109,20 +108,15 @@ const handleSignupSubmit = async (e) => {
         <Box
           sx={{
             width: "50%",
-            backgroundColor: "#e0e0e0",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             flexDirection: "column",
-            padding: 2,
+            bgcolor: 'black',
+            borderRight: '2px solid #B7B7B7'
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
-            AMU
-          </Typography>
-          <Typography variant="body1" sx={{ textAlign: "center", px: 2 }}>
-            Capturing Moments, Creating Memories
-          </Typography>
+          <img src={login} width="100%" height="100%" style={{ opacity: 0.6 }} alt="Login illustration" />
         </Box>
 
         {/* Right Section */}
@@ -227,25 +221,6 @@ const handleSignupSubmit = async (e) => {
                 onChange={handleChange}
                 sx={{ mb: 3 }}
                 required
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="agreeToTerms"
-                    checked={formData.agreeToTerms}
-                    onChange={handleChange}
-                    color="primary"
-                  />
-                }
-                label={
-                  <Typography variant="body2" component="span" sx={{ color: "text.secondary" }}>
-                    I agree to the{" "}
-                    <Link href="#" underline="hover">
-                      Terms & Conditions
-                    </Link>
-                  </Typography>
-                }
-                sx={{ mb: 3 }}
               />
               <Button
                 variant="contained"

@@ -1,9 +1,16 @@
 import { Box, Typography, Button } from '@mui/material';
 import React from 'react';
-import resume from '../images/resume.jpg';
+import resume from '../images/pic1.jpg';
 import StarRateIcon from '@mui/icons-material/StarRate';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 function CreateResume() {
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleTryNowClick = () => {
+    navigate('/login'); // Redirect to /login
+  };
+
   return (
     <>
       <Box width="100%" height="90vh" display="flex">
@@ -14,6 +21,8 @@ function CreateResume() {
           display="flex"
           justifyContent="center"
           alignItems="center"
+          width="50%"
+          bgcolor="black"
         >
           <img
             src={resume}
@@ -22,6 +31,8 @@ function CreateResume() {
               width: '100%', // Ensures the image spans the full width of its container
               height: '100%', // Ensures the image fills its container's height
               objectFit: 'cover', // Maintains aspect ratio and covers the container
+              opacity: '0.5',
+              boxShadow: '10px 0px 15px -5px rgba(0, 0, 0, 0.75)',
             }}
           />
         </Box>
@@ -33,9 +44,8 @@ function CreateResume() {
           display="flex"
           flexDirection="column"
           justifyContent="center"
-          bgcolor="white"
           padding="5%"
-           borderBottom="1px solid #B7B7B7"
+          borderBottom="1px solid #B7B7B7"
           bgcolor="#f5f5f5"
         >
           <Typography variant="h1" textAlign="left" margin="10px">
@@ -50,17 +60,29 @@ function CreateResume() {
             Customisable resume templates provide well-optimised designs that
             can be adjusted as per your needs in this AI resume builder
           </Typography>
-          {/* Button with fixed width */}
-          <Box display='flex' width='80%' border='2px solid #FF6229' borderRadius='15px' padding='10px' bgcolor='#ffd9cc'>
-          <StarRateIcon sx={{ color: '#FF6229', fontSize: '30px' }} />
-         <Typography variant='h6' color='textSecondary'>Your Dream Job Starts with a Perfect Resume – Let Us Help You Build It!</Typography>
+          {/* Highlighted Box */}
+          <Box
+            display="flex"
+            width="80%"
+            border="2px solid #FF6229"
+            borderRadius="15px"
+            padding="10px"
+            bgcolor="#ffd9cc"
+          >
+            <StarRateIcon sx={{ color: '#FF6229', fontSize: '30px' }} />
+            <Typography variant="h6" color="textSecondary">
+              Your Dream Job Starts with a Perfect Resume – Let Us Help You
+              Build It!
+            </Typography>
           </Box>
+          {/* Create Now Button */}
           <Button
             variant="contained"
             sx={{
               width: '200px', // Fixed width for the button
               marginTop: '20px', // Adds spacing from the text above
             }}
+            onClick={handleTryNowClick}
           >
             Create Now
           </Button>

@@ -1,42 +1,107 @@
-import React, { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
   LinearProgress,
   Button,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 function FileUploadPage() {
-  const [files, setFiles] = useState([]);
-  const [usedStorage, setUsedStorage] = useState(13.25); // GB
-  const totalStorage = 15; // GB
+  const location = useLocation();
+  const [email, setEmail] = useState("");
+  const [file, setFile] = useState(null);
+  const [usedStorage, setUsedStorage] = useState(13.25);
+  const [fetchedData, setFetchedData] = useState([{
+    _id: "",
+    filename: "",
+    size: 0,
+    uploadDate: ""
+  }]);
 
-  // Handle file uploads via dropzone or input field
-  const onDrop = useCallback(
-    (acceptedFiles) => {
-      setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+  const totalStorage = 15;
 
-      // Simulate storage update (based on file size, here assumed for demo)
-      const newUsedStorage = usedStorage + acceptedFiles.length * 0.1; // Mock file size
-      setUsedStorage(newUsedStorage);
-    },
-    [usedStorage]
-  );
+  useEffect(() => {
+    if (location.state && location.state.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: "image/*,application/pdf,.doc,.docx,.xlsx,.xls,.txt",
-    multiple: true,
-  });
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
+  const handleUpload = () => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("resume", file);
+
+      // Post request to backend
+      axios
+        .post(
+          "https://resume-analysis-service-166527752013.us-central1.run.app/upload-document",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((response) => {
+          console.log("File uploaded successfully", response.data);
+
+          // Assuming response data contains filename, size, and uploadDate
+          const uploadedFile = {
+            _id: response.data._id,
+            filename: response.data.filename,
+            size: response.data.size, // assuming the response includes size
+            uploadDate: new Date().toLocaleDateString(), // using the current date as upload date
+          };
+
+          // Immediately update the fetchedData state with the new file
+          setFetchedData((prevData) => [
+            ...prevData,
+            uploadedFile,
+          ]);
+
+          // Optionally, update the storage usage based on the file size
+          setUsedStorage((prevUsedStorage) => prevUsedStorage + uploadedFile.size / (1024 * 1024)); // Assuming size is in bytes
+        })
+        .catch((error) => {
+          console.error("Error uploading file:", error);
+        });
+    } else {
+      alert("Please select a file first.");
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `https://resume-analysis-service-166527752013.us-central1.run.app/get-documents?email=${email}`
+        );
+        console.log(response.data);
+        setFetchedData(response.data.documents);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    if (email) {
+      fetchData();
+    }
+  }, [email]);
 
   return (
     <Box
@@ -62,7 +127,7 @@ function FileUploadPage() {
           WebkitTextFillColor: "transparent",
         }}
       >
-        Upload Your Documents
+        Upload Your Document
       </Typography>
 
       {/* Storage Indicator */}
@@ -81,52 +146,65 @@ function FileUploadPage() {
             },
           }}
         />
-        <Typography variant="caption" sx={{ display: "block", mt: 1, color: "#888888" }}>
+        <Typography
+          variant="caption"
+          sx={{ display: "block", mt: 1, color: "#888888" }}
+        >
           {totalStorage - usedStorage} GB remaining
         </Typography>
       </Box>
 
       {/* File Upload Section */}
-      <Box
-        {...getRootProps()}
-        sx={{
-          border: "2px dashed #ccc",
-          borderRadius: 8,
-          padding: 4,
-          textAlign: "center",
-          backgroundColor: isDragActive ? "#e6f7ff" : "#f9f9f9",
-          "&:hover": {
-            backgroundColor: "#f4f8ff",
-          },
-          transition: "background-color 0.3s",
-          mb: 4,
-          cursor: "pointer",
-        }}
-      >
-        <input {...getInputProps()} />
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          {isDragActive ? "Drop the files here..." : "Drag and drop your files here or"}
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<CloudUploadIcon />}
-          sx={{
-            background: "linear-gradient(90deg, #0569E3, #FF6229)",
-            color: "white",
-            fontWeight: "bold",
-            borderRadius: 30,
-            paddingX: 4,
-            "&:hover": {
-              opacity: 0.9,
-            },
-          }}
-        >
-          Browse Files
-        </Button>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept="image/*,application/pdf,.doc,.docx,.xlsx,.xls,.txt"
+          style={{ display: "none" }}
+          id="file-upload"
+        />
+        <label htmlFor="file-upload">
+          <Button
+            variant="contained"
+            component="span"
+            startIcon={<CloudUploadIcon />}
+            sx={{
+              background: "linear-gradient(90deg, #0569E3, #FF6229)",
+              color: "white",
+              fontWeight: "bold",
+              borderRadius: 30,
+              paddingX: 4,
+              "&:hover": {
+                opacity: 0.9,
+              },
+            }}
+          >
+            Choose File
+          </Button>
+        </label>
       </Box>
 
+      {/* Upload Button */}
+      {file && (
+        <Box sx={{ textAlign: "center", mb: 4 }}>
+          <Button
+            variant="contained"
+            sx={{
+              background: "linear-gradient(90deg, #0569E3, #FF6229)",
+              color: "white",
+              fontWeight: "bold",
+              borderRadius: 30,
+              paddingX: 4,
+            }}
+            onClick={handleUpload}
+          >
+            Upload File
+          </Button>
+        </Box>
+      )}
+
       {/* Document Table */}
-      {files.length > 0 && (
+      {fetchedData.length > 0 && (
         <TableContainer
           component={Paper}
           sx={{
@@ -137,7 +215,9 @@ function FileUploadPage() {
           <Table>
             <TableHead sx={{ backgroundColor: "#6B7280" }}>
               <TableRow>
-                <TableCell sx={{ color: "white", fontWeight: "bold" }}>File Name</TableCell>
+                <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                  File Name
+                </TableCell>
                 <TableCell sx={{ color: "white", fontWeight: "bold" }} align="right">
                   Size (MB)
                 </TableCell>
@@ -147,13 +227,13 @@ function FileUploadPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {files.map((file, index) => (
+              {fetchedData.map((file, index) => (
                 <TableRow key={index} hover>
-                  <TableCell>{file.name}</TableCell>
+                  <TableCell>{file.filename}</TableCell>
                   <TableCell align="right">
                     {(file.size / 1024 / 1024).toFixed(2)}
                   </TableCell>
-                  <TableCell align="right">{new Date().toLocaleDateString()}</TableCell>
+                  <TableCell align="right">{file.uploadDate}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -161,8 +241,11 @@ function FileUploadPage() {
         </TableContainer>
       )}
 
-      {files.length === 0 && (
-        <Typography variant="body2" sx={{ textAlign: "center", color: "#999999", mt: 4 }}>
+      {fetchedData.length === 0 && (
+        <Typography
+          variant="body2"
+          sx={{ textAlign: "center", color: "#999999", mt: 4 }}
+        >
           No files uploaded yet.
         </Typography>
       )}
