@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Stack, Typography, TextField, Button, Rating, Paper } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 function FeedbackPage() {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
+  const [email, setEmail] = useState('');
+  
+  // Retrieve email from location state
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state && location.state.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state]);
 
   const handleRatingChange = (event, newValue) => {
     setRating(newValue);
@@ -13,10 +24,35 @@ function FeedbackPage() {
     setFeedback(event.target.value);
   };
 
-  const handleSubmit = () => {
-    alert(`Rating: ${rating}\nFeedback: ${feedback}`);
-    setRating(0);
-    setFeedback('');
+  const handleSubmit = async () => {
+    const payload = {
+      email,
+      rating,
+      feedback,
+    };
+
+    try {
+      const response = await fetch('https://resume-analysis-service-166527752013.us-central1.run.app/add-feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        alert('Feedback submitted successfully!');
+        setRating(0);
+        setFeedback('');
+      } else {
+        const errorData = await response.json();
+        console.error('Error submitting feedback:', errorData);
+        alert('Failed to submit feedback. Please try again.');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      alert('An error occurred while submitting feedback. Please check your connection.');
+    }
   };
 
   return (
@@ -26,6 +62,13 @@ function FeedbackPage() {
           <Typography variant="h4" fontWeight="bold" color="primary" align="center">
             We Value Your Feedback
           </Typography>
+
+          {/* Display email */}
+          {email && (
+            <Typography variant="subtitle1" color="textSecondary" align="center">
+              Feedback for: {email}
+            </Typography>
+          )}
 
           {/* Rating Section */}
           <Stack direction="row" alignItems="center" spacing={1}>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -6,7 +7,6 @@ import {
   Card,
   CardContent,
   Avatar,
-  Grid,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -14,42 +14,30 @@ import {
 import StarRateIcon from "@mui/icons-material/StarRate";
 
 function Reviews() {
-  const reviews = [
-    {
-      name: "Maliks January",
-      title: "Product Designer",
-      review:
-        "The website is so easy to use! I was able to create and analyze my resume within minutes.",
-      stars: 5,
-      avatar: "https://via.placeholder.com/50",
-    },
-    {
-      name: "Rentt Vivie",
-      title: "Front-End Developer",
-      review:
-        "The ability to download my resume in different formats is a fantastic feature.",
-      stars: 5,
-      avatar: "https://via.placeholder.com/50",
-    },
-    {
-      name: "Chris Doe",
-      title: "Backend Engineer",
-      review:
-        "Fantastic platform! The AI suggestions helped me tailor my resume for specific roles.",
-      stars: 4,
-      avatar: "https://via.placeholder.com/50",
-    },
-    {
-      name: "Emma White",
-      title: "Data Scientist",
-      review: "Great user experience and helpful insights for building resumes.",
-      stars: 5,
-      avatar: "https://via.placeholder.com/50",
-    },
-  ];
+  // State for reviews data
+  const [reviews, setReviews] = useState([]);
+  const [open, setOpen] = useState(false); // Popup visibility
 
-  // State for managing popup visibility
-  const [open, setOpen] = useState(false);
+  // Fetch reviews from the API
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(
+          "https://resume-analysis-service-166527752013.us-central1.run.app/get-feedback"
+        );
+        // Assuming the actual reviews are in response.data[0].feedback
+        if (response.data && Array.isArray(response.data[0]?.feedback)) {
+          setReviews(response.data[0].feedback);
+        } else {
+          console.error("Unexpected response structure:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
+    fetchReviews();
+  }, []);
 
   // Open popup
   const handleOpen = () => setOpen(true);
@@ -73,9 +61,20 @@ function Reviews() {
       </Box>
 
       {/* Reviews Section */}
-      <Grid container spacing={4} justifyContent="center">
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        justifyContent="center"
+        gap="16px"
+        marginTop="20px"
+      >
         {(open ? reviews : limitedReviews).map((review, index) => (
-          <Grid item xs={12} sm={6} key={index}>
+          <Box
+            key={index}
+            width={{ xs: "100%", sm: "calc(50% - 16px)" }}
+            display="flex"
+            flexDirection="column"
+          >
             <Card
               sx={{
                 padding: "20px",
@@ -86,33 +85,37 @@ function Reviews() {
               <CardContent>
                 {/* Stars */}
                 <Box display="flex" marginBottom="10px">
-                  {Array.from({ length: review.stars }).map((_, i) => (
-                    <StarRateIcon key={i} sx={{ color: "#FFC107" }} />
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <StarRateIcon key={i} sx={{ color: i < 4 ? "#FFC107" : "#E0E0E0" }} />
                   ))}
                 </Box>
 
                 {/* Review Text */}
                 <Typography variant="body1" color="textSecondary" marginBottom="20px">
-                  {review.review}
+                  {review.feedback}
                 </Typography>
 
-                {/* User Info */}
+                {/* Placeholder User Info */}
                 <Box display="flex" alignItems="center">
-                  <Avatar src={review.avatar} alt={review.name} sx={{ marginRight: "10px" }} />
+                  <Avatar
+                    src={"https://via.placeholder.com/50"}
+                    alt={"Anonymous"}
+                    sx={{ marginRight: "10px" }}
+                  />
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      {review.name}
+                      Anonymous User
                     </Typography>
                     <Typography variant="subtitle2" color="textSecondary">
-                      {review.title}
+                      Reviewer
                     </Typography>
                   </Box>
                 </Box>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* "See All Stories" Button */}
       <Box textAlign="center" marginTop="30px">
@@ -130,9 +133,20 @@ function Reviews() {
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
         <DialogTitle>All Reviews</DialogTitle>
         <DialogContent>
-          <Grid container spacing={4} justifyContent="center">
+          <Box
+            display="flex"
+            flexWrap="wrap"
+            justifyContent="center"
+            gap="16px"
+            marginTop="20px"
+          >
             {reviews.map((review, index) => (
-              <Grid item xs={12} sm={6} key={index}>
+              <Box
+                key={index}
+                width={{ xs: "100%", sm: "calc(50% - 16px)" }}
+                display="flex"
+                flexDirection="column"
+              >
                 <Card
                   sx={{
                     padding: "20px",
@@ -143,37 +157,37 @@ function Reviews() {
                   <CardContent>
                     {/* Stars */}
                     <Box display="flex" marginBottom="10px">
-                      {Array.from({ length: review.stars }).map((_, i) => (
-                        <StarRateIcon key={i} sx={{ color: "#FFC107" }} />
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <StarRateIcon key={i} sx={{ color: i < 4 ? "#FFC107" : "#E0E0E0" }} />
                       ))}
                     </Box>
 
                     {/* Review Text */}
                     <Typography variant="body1" color="textSecondary" marginBottom="20px">
-                      {review.review}
+                      {review.feedback}
                     </Typography>
 
-                    {/* User Info */}
+                    {/* Placeholder User Info */}
                     <Box display="flex" alignItems="center">
                       <Avatar
-                        src={review.avatar}
-                        alt={review.name}
+                        src={"https://via.placeholder.com/50"}
+                        alt={"Anonymous"}
                         sx={{ marginRight: "10px" }}
                       />
                       <Box>
                         <Typography variant="subtitle1" fontWeight="bold">
-                          {review.name}
+                          Anonymous User
                         </Typography>
                         <Typography variant="subtitle2" color="textSecondary">
-                          {review.title}
+                          Reviewer
                         </Typography>
                       </Box>
                     </Box>
                   </CardContent>
                 </Card>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
           <Box textAlign="center" marginTop="30px">
             <Button
               variant="contained"

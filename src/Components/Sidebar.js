@@ -12,10 +12,11 @@ import {
 import { Home, Info, Menu, ChevronLeft, Login } from "@mui/icons-material";
 import FilePresentIcon from "@mui/icons-material/FilePresent";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
-
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Sidebar = ({ onMenuItemClick }) => {
   const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -27,6 +28,11 @@ const Sidebar = ({ onMenuItemClick }) => {
     { text: "Create Resume", icon: <DocumentScannerIcon /> },
     { text: "Feedback", icon: <Info /> },
   ];
+
+  const handleLogout = () => {
+    // Navigate to the login page
+    navigate("/login");
+  };
 
   return (
     <div style={{ display: "flex" }}>
@@ -56,7 +62,7 @@ const Sidebar = ({ onMenuItemClick }) => {
             color: "white",
           }}
         >
-          {isOpen && <Typography variant="h6" >Welcome, Ramsha Iqbal</Typography>}
+          {isOpen && <Typography variant="h6">Welcome, Ramsha Iqbal</Typography>}
           <IconButton onClick={toggleDrawer} sx={{ color: "white" }}>
             {isOpen ? <ChevronLeft /> : <Menu />}
           </IconButton>
@@ -64,7 +70,7 @@ const Sidebar = ({ onMenuItemClick }) => {
         <Divider />
         
         {/* Menu Items */}
-        <List >
+        <List>
           {menuItems.map((item, index) => (
             <ListItem
               button
@@ -92,7 +98,7 @@ const Sidebar = ({ onMenuItemClick }) => {
         <List style={{ marginTop: "auto" }}>
           <ListItem
             button
-            onClick={() => onMenuItemClick("Login")} // Handle login click
+            onClick={handleLogout} // Call handleLogout on click
             sx={{
               "&:hover": {
                 backgroundColor: "#f5f5f5",
