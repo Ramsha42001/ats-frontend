@@ -213,7 +213,7 @@ function ResumeAnalysisPage({ fetchedData }) {
             </Typography>
 
             <Typography variant="h6" sx={{ mb: 2, fontWeight: "bolder" }}>
-              Suggestions for Improvement:
+              Suggestions:
             </Typography>
             <Typography variant="body1" sx={{ mb: 4 }}>
               {suggestions}
