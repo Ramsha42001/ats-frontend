@@ -22,7 +22,7 @@ const Sidebar = ({ onMenuItemClick }) => {
   };
 
   const menuItems = [
-    { text: "Home", icon: <Home /> },
+    { text: "Dashboard", icon: <Home /> },
     { text: "Analyze Resume", icon: <FilePresentIcon /> },
     { text: "Create Resume", icon: <DocumentScannerIcon /> },
     { text: "Feedback", icon: <Info /> },
@@ -51,11 +51,12 @@ const Sidebar = ({ onMenuItemClick }) => {
             justifyContent: isOpen ? "space-between" : "center",
             alignItems: "center",
             padding: 16,
+            height: 150,
             backgroundColor: "#6B7280",
             color: "white",
           }}
         >
-          {isOpen && <Typography variant="h6" >Resume Analyzer</Typography>}
+          {isOpen && <Typography variant="h6" >Welcome, Ramsha Iqbal</Typography>}
           <IconButton onClick={toggleDrawer} sx={{ color: "white" }}>
             {isOpen ? <ChevronLeft /> : <Menu />}
           </IconButton>
@@ -63,7 +64,7 @@ const Sidebar = ({ onMenuItemClick }) => {
         <Divider />
         
         {/* Menu Items */}
-        <List>
+        <List >
           {menuItems.map((item, index) => (
             <ListItem
               button

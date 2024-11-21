@@ -14,10 +14,10 @@ const Footer = () => {
         {/* Logo and Description */}
         <Grid item xs={12} md={3}>
           <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-            Cadenz.ai
+           Resume Analyzer
           </Typography>
           <Typography variant="body2" sx={{ mb: 2 }}>
-            Join over 35,307,000 users worldwide
+            {/* Join over 35,307,000 users worldwide */}
           </Typography>
           <Button
             variant="contained"
@@ -99,28 +99,7 @@ const Footer = () => {
           </Typography>
         </Grid>
 
-        <Grid item xs={12} md={2}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-            Resources
-          </Typography>
-          <Typography variant="body2">
-            <Link href="#" underline="none" color="inherit">
-              Pricing
-            </Link>
-          </Typography>
-          <Typography variant="body2">
-            <Link href="#" underline="none" color="inherit">
-              LinkedIn Extension
-            </Link>
-          </Typography>
-          <Typography variant="body2">
-            <Link href="#" underline="none" color="inherit">
-              Cadenz News
-            </Link>
-          </Typography>
-        </Grid>
-
-        <Grid item xs={12} md={2}>
+        {/* <Grid item xs={12} md={2}>
           <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
             Follow Us
           </Typography>
@@ -144,7 +123,7 @@ const Footer = () => {
               YouTube
             </Link>
           </Typography>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       {/* Footer Bottom */}
@@ -159,7 +138,7 @@ const Footer = () => {
         }}
       >
         <Typography variant="body2" color="text.secondary">
-          © 2023 Cadenz.ai. All rights reserved.
+          © 2024 LNMIIT. All rights reserved.
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
           <Link href="#" underline="none" color="text.secondary">
