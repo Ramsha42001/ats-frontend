@@ -1,4 +1,3 @@
-// Components/Header.js
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -16,6 +15,14 @@ function Header() {
     setAnchorEl(null);
   };
 
+  const handleFeaturesClick = () => {
+    const element = document.getElementById('description');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' }); // Smoothly scroll to the description section
+    }
+  };
+  
+
   return (
     <AppBar position="sticky" sx={{ bgcolor: 'white', borderBottom: '2px solid #ccc' }}>
       <Toolbar sx={{ bgcolor: 'white' }}>
@@ -26,9 +33,9 @@ function Header() {
           <Button sx={{ color: 'black' }} onClick={() => navigate('/')}>
             Home
           </Button>
-          <Button sx={{ color: 'black' }} onClick={() => navigate('/features')}>
+          {/* <Button sx={{ color: 'black' }} onClick={handleFeaturesClick}>
             Features
-          </Button>
+          </Button> */}
           <Button sx={{ color: 'black' }} onClick={() => navigate('/login')}>
             Login
           </Button>
@@ -44,8 +51,22 @@ function Header() {
         </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={() => navigate('/')}>Home</MenuItem>
-          <MenuItem onClick={() => navigate('/features')}>Features</MenuItem>
-          <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
+          {/* <MenuItem
+            onClick={() => {
+              handleFeaturesClick();
+              handleMenuClose();
+            }}
+          >
+            Features
+          </MenuItem> */}
+          <MenuItem
+            onClick={() => {
+              navigate('/login');
+              handleMenuClose();
+            }}
+          >
+            Login
+          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
