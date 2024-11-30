@@ -97,3 +97,5 @@ The application will be accessible at http://localhost:3000.
 
 7. Access the Application
 User Interface: Upload resumes, provide job descriptions, and view scoring results.
+
+
